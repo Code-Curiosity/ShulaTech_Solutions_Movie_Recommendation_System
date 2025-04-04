@@ -1,4 +1,6 @@
 import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
 # Merging the columns of two datasets to create a single dataset with all the required features
 def load_and_prepare_data():
     # Load datasets
@@ -27,6 +29,39 @@ user_movie_matrix = create_user_movie_matrix(data)
 user_movie_matrix = user_movie_matrix.fillna(0)
 
 # Now we have a user-movie matrix where the rows are users and columns are movies, and the values are the ratings given by users to movies
-# This is the core dataset which will be used to derive recommendations using collaborative filtering
+# This is the core dataset which will be used for making recommender and for the same we are using user-based collaborative filtering
+# Cosine similarity calculates similarity between each user with other users based on their ratings.
 
+# Compute cosine similarities between users
+user_similarity = cosine_similarity(user_movie_matrix)
 
+# Convert to DataFrame for easier handling and readability
+user_similarity_df = pd.DataFrame(user_similarity, index=user_movie_matrix.index, columns=user_movie_matrix.index)
+
+# Creating the recommender logic
+# We are using the top n similar users to the target user to make recommendations better
+# We are using the weighted average of the ratings given by similar users to make recommendations
+# The recommender logic will take user_id, user_movie_matrix, similarity_matrix and n_recommendations as inputs
+# The recommender logic will return the top n recommendations for the user based on the ratings given by similar users
+# The recommender logic will use the user_movie_matrix and similarity_matrix to make recommendations
+def recommender_logic(user_id, user_movie_matrix, similarity_matrix, n_recommendations=5):
+    # Get the user's ratings
+    user_ratings = user_movie_matrix.loc[user_id]
+
+    # Get the indices of the top n similar users
+    similar_users_indices = similarity_matrix[user_id].argsort()[-n_recommendations-1:-1][::-1]
+
+    # Get the ratings of the similar users
+    similar_users_ratings = user_movie_matrix.iloc[similar_users_indices]
+
+    # Calculate the weighted average of the ratings from similar users
+    weighted_ratings = np.dot(similarity_matrix[user_id][similar_users_indices], similar_users_ratings)
+
+    # Normalize by the sum of similarities
+    recommendations = weighted_ratings / np.sum(similarity_matrix[user_id][similar_users_indices])
+
+    # Create a DataFrame for recommendations
+    recommendations_df = pd.DataFrame(recommendations, index=user_movie_matrix.columns, columns=['Predicted Rating'])
+    
+    # Sort by predicted rating and return top n recommendations
+    return recommendations_df.sort_values(by='Predicted Rating', ascending=False).head(n_recommendations)
