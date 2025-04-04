@@ -44,7 +44,7 @@ user_similarity_df = pd.DataFrame(user_similarity, index=user_movie_matrix.index
 # The recommender logic will take user_id, user_movie_matrix, similarity_matrix and n_recommendations as inputs
 # The recommender logic will return the top n recommendations for the user based on the ratings given by similar users
 # The recommender logic will use the user_movie_matrix and similarity_matrix to make recommendations
-def recommender_logic(user_id, user_movie_matrix, similarity_matrix, n_recommendations=5):
+def recommender_logic(user_id, user_movie_matrix, similarity_matrix, movies n_recommendations=5):
     # Get the user's ratings
     user_ratings = user_movie_matrix.loc[user_id]
 
