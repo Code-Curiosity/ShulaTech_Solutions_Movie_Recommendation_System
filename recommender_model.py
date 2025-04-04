@@ -13,13 +13,13 @@ def load_and_prepare_data():
 # Now this is the merged data where the columns are : userId, movieId, rating, title, genres
 # And rows are the ratings given by users to movies, but this is not feasable for the recommender system
 # So we need to create a user-item matrix where the rows are users and columns are movies
-
-#Create a user-Movie-Matrix
-def create_user_movie_matrix(finaldata):
-    matrix = finaldata.pivot_table(index='userId',columns='movieId',values='rating')
-    return matrix
-# Load data from the function and storing it in a variable name data 
+# We are loading this finaldata to a variable so that the function can be called later
 data = load_and_prepare_data()
+#Create a user-Movie-Matrix
+def create_user_movie_matrix(data):
+    matrix = data.pivot_table(index='userId',columns='movieId',values='rating')
+    return matrix
+
 # Calling the function and storing it in a variable
 user_movie_matrix = create_user_movie_matrix(data)
 
