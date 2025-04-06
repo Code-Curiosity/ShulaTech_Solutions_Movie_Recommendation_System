@@ -10,13 +10,13 @@ def load_and_prepare_data():
     data = pd.merge(ratings, movies, on='movieId')
     # Drop unnecessary columns
     finaldata = data.drop(columns=['timestamp'])
-    return finaldata
+    return finaldata, movies
 
 # Now this is the merged data where the columns are : userId, movieId, rating, title, genres
 # And rows are the ratings given by users to movies, but this is not feasable for the recommender system
 # So we need to create a user-item matrix where the rows are users and columns are movies
 # We are loading this finaldata to a variable so that the function can be called later
-data = load_and_prepare_data()
+data, movies = load_and_prepare_data()
 #Create a user-Movie-Matrix
 def create_user_movie_matrix(data):
     matrix = data.pivot_table(index='userId',columns='movieId',values='rating')
@@ -32,12 +32,17 @@ user_movie_matrix = user_movie_matrix.fillna(0)
 # This is the core dataset which will be used for making recommender and for the same we are using user-based collaborative filtering
 # Cosine similarity calculates similarity between each user with other users based on their ratings.
 
-# Compute cosine similarities between users
-user_similarity = cosine_similarity(user_movie_matrix)
+def compute_user_similarity(user_movie_matrix):
+    # 👇 Fill NaNs with 0 — assumes unrated movies are just 0
+    user_movie_matrix_filled = user_movie_matrix.fillna(0)
 
-# Convert to DataFrame for easier handling and readability
-user_similarity_df = pd.DataFrame(user_similarity, index=user_movie_matrix.index, columns=user_movie_matrix.index)
+    # Compute cosine similarity
+    user_similarity = cosine_similarity(user_movie_matrix_filled)
 
+    # Convert to DataFrame for easier handling
+    similarity_df = pd.DataFrame(user_similarity, index=user_movie_matrix.index, columns=user_movie_matrix.index)
+
+    return similarity_df
 # Creating the recommender logic
 # We are using the top n similar users to the target user to make recommendations better
 # We are using the weighted average of the ratings given by similar users to make recommendations
