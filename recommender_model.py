@@ -44,7 +44,7 @@ user_similarity_df = pd.DataFrame(user_similarity, index=user_movie_matrix.index
 # The recommender logic will take user_id, user_movie_matrix, similarity_matrix and n_recommendations as inputs
 # The recommender logic will return the top n recommendations for the user based on the ratings given by similar users
 # The recommender logic will use the user_movie_matrix and similarity_matrix to make recommendations
-def recommender_logic(user_id, user_movie_matrix, similarity_matrix, movies n_recommendations=5):
+def recommender_logic(user_id, user_movie_matrix, similarity_matrix, movies, n_recommendations=5):
     # Get the user's ratings
     user_ratings = user_movie_matrix.loc[user_id]
 
@@ -62,6 +62,16 @@ def recommender_logic(user_id, user_movie_matrix, similarity_matrix, movies n_re
 
     # Create a DataFrame for recommendations
     recommendations_df = pd.DataFrame(recommendations, index=user_movie_matrix.columns, columns=['Predicted Rating'])
-    
-    # Sort by predicted rating and return top n recommendations
-    return recommendations_df.sort_values(by='Predicted Rating', ascending=False).head(n_recommendations)
+
+    # Remove movies the user has already rated
+    watched_movies = user_ratings[user_ratings > 0].index
+    recommendations_df = recommendations_df.drop(watched_movies, errors='ignore')
+
+    # Sort by predicted rating and get top n recommendations
+    top_recommendations = recommendations_df.sort_values(by='Predicted Rating', ascending=False).head(n_recommendations)
+
+    # Merge with movies DataFrame to get titles
+    top_recommendations = top_recommendations.merge(movies, left_index=True, right_on='movieId')
+
+    return top_recommendations[['title', 'Predicted Rating']]
+
