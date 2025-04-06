@@ -109,11 +109,9 @@ pip install pandas numpy scikit-learn
 
 ## 👥 Credits
 
-Created by [Your Name Here] as part of a CLI-based recommender system project using the MovieLens dataset.
+Created by [Hitansh Bhagtani] as part of a CLI-based recommender system project using the MovieLens dataset.
 
 ---
 
-## ✉️ License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
